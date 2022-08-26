@@ -25,7 +25,7 @@ public class MyGdxGame extends ApplicationAdapter {
     public void render() {
         ScreenUtils.clear(1, 1, 1, 1);
         animationCl.setTime(Gdx.graphics.getDeltaTime());
-        float x = Gdx.input.getX() - animationCl.getFrame().getRegionWidth() / 2f;
+        float x = Gdx.graphics.getWidth() / 2f ;
         float y = Gdx.graphics.getHeight() - Gdx.input.getY() - animationCl.getFrame().getRegionHeight()/2.0f;
 
         if (Gdx.input.isButtonJustPressed(Input.Keys.A)) {
@@ -48,7 +48,7 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         batch.begin();
-        batch.draw(animationCl.getFrame(), 0, 0);
+        batch.draw(animationCl.getFrame(), x, y);
         batch.end();
     }
 
