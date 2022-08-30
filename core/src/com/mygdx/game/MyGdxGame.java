@@ -3,37 +3,58 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MyGdxGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	int click;
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("apple.png");
-	}
+    SpriteBatch batch;
+    int click;
+    AnimationCl animationCl;
+    boolean dir;
+    private boolean lookRight = true;
+    private int animPositionX = 0;
 
-	@Override
-	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		float x = Gdx.input.getX() - img.getHeight() / 2;
-		float y = Gdx.graphics.getHeight() - Gdx.input.getY() - img.getHeight() / 2;
-		if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-			click++;
-		}
-		Gdx.graphics.setTitle("Clicked time: " + click);
-		batch.draw(img, x, y);
-		batch.end();
-	}
-	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
+    @Override
+    public void create() {
+        batch = new SpriteBatch();
+        animationCl = new AnimationCl("hero_spritesheet.png", 9, 6, Animation.PlayMode.LOOP);
+    }
+
+    @Override
+    public void render() {
+        ScreenUtils.clear(1, 1, 1, 1);
+        animationCl.setTime(Gdx.graphics.getDeltaTime());
+        float x = Gdx.input.getX() - animationCl.getFrame().getRegionWidth() / 2f;
+        float y = Gdx.graphics.getHeight() - Gdx.input.getY() - animationCl.getFrame().getRegionHeight()/2.0f;
+
+        if (Gdx.input.isButtonJustPressed(Input.Keys.A)) {
+            dir = true;
+        }
+        if (Gdx.input.isButtonJustPressed(Input.Keys.D)) {
+            dir = false;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) lookRight = false;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) lookRight = true;
+        if (animPositionX + 128 >= Gdx.graphics.getWidth()) lookRight = false;
+        if (animPositionX <= 0) lookRight = true;
+
+        if (!animationCl.getFrame().isFlipX() && !dir) {
+            animationCl.getFrame().flip(true, false);
+        }
+        if (animationCl.getFrame().isFlipX() && dir) {
+            animationCl.getFrame().flip(false, false);
+        }
+
+        batch.begin();
+        batch.draw(animationCl.getFrame(), 0, 0);
+        batch.end();
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        animationCl.dispose();
+    }
 }
