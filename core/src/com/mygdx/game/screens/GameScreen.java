@@ -15,9 +15,15 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.game.Action;
 import com.mygdx.game.AnimationCl;
 import com.mygdx.game.Main;
+import com.mygdx.game.PhyX;
+
+import java.util.ArrayList;
 
 public class GameScreen implements Screen {
     private final Main main;
@@ -29,11 +35,17 @@ public class GameScreen implements Screen {
     private final int[] layerOne;
     private final Rectangle mapSize;
     private AnimationCl animationCl;
+    private final PhyX physX;
+    private Body heroBody;
+    public static ArrayList<Body> bodyArrayList;
+    public static Action action;
+    private boolean stillPlaying;
+    private Texture img;
 
     public GameScreen(Main game) {
         this.main = game;
         TmxMapLoader tm = new TmxMapLoader();
-        map = tm.load("map/map.tmx");
+        map = tm.load("map/MarshMap.tmx");
         bg = new int[1];
         bg[0] = map.getLayers().getIndex("background");
         layerOne = new int[2];
@@ -46,8 +58,13 @@ public class GameScreen implements Screen {
         RectangleMapObject mapObject = (RectangleMapObject) map.getLayers().get("objects").getObjects().get("camera");
         mapObject = (RectangleMapObject) map.getLayers().get("objects").getObjects().get("borders");
         mapSize = mapObject.getRectangle();
+        this.physX = new PhyX();
     }
+    private void loadHero(){
+        RectangleMapObject tmp = (RectangleMapObject) map.getLayers().get("setting").getObjects().get("character");
+        this.heroBody = physX.addObject(tmp, "character", true);
 
+    }
     @Override
     public void show() {
 
@@ -70,8 +87,46 @@ public class GameScreen implements Screen {
         TextureRegion trTmp = animationCl.getFrame();
         batch.draw(trTmp, Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         batch.end();
+
+    }
+    public void destroy(){
+        for (Body body:
+                bodyArrayList) {
+            physX.destroyBody(body);
+        }
+        bodyArrayList.clear();
+    }
+    private void gameWin() {
+
+        this.stillPlaying = false;
+        this.img = new Texture("playerWon.png");
+    }
+    private void roots() {
+        Vector2 currentVector = heroBody.getLinearVelocity();
+        heroBody.applyForceToCenter(new Vector2( -100 * currentVector.x, -100 * currentVector.y),
+                true);
+    }
+    private void gameOver() {
+        this.stillPlaying = false;
+        this.img = new Texture("defeat.png");
     }
 
+    private void doActions() {
+        if (action != null) {
+            switch (action) {
+                case ROOT:
+                    roots();
+                    break;
+                case WIN:
+                    gameWin();
+                    break;
+                case DEATH:
+                    gameOver();
+                    break;
+            }
+            action = null;
+        }
+    }
     @Override
     public void resize(int width, int height) {
 

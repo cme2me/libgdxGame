@@ -3,6 +3,7 @@ package com.mygdx.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -13,10 +14,14 @@ public class MenuScreen implements Screen {
     private final Main main;
     private final Rectangle rec;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private final Music music;
 
     public MenuScreen(Main main) {
         this.main = main;
         rec = new Rectangle();
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("sounds/Mainpage.mp3"));
+        music.setLooping(true);
+        music.play();
     }
 
     @Override
@@ -64,6 +69,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        shapeRenderer.dispose();
+        music.dispose();
     }
 }
